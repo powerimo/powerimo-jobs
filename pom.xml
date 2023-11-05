@@ -71,6 +71,11 @@
             <name>NexusReleases</name>
             <url>https://nexus3.andewil.com/repository/maven-releases</url>
         </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <name>NexusSnapshots</name>
+            <url>https://nexus3.andewil.com/repository/maven-snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
 
