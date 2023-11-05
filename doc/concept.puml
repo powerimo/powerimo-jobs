@@ -1,0 +1,29 @@
+@startuml
+
+entity Caller
+entity Runner
+entity Repository
+entity Job
+entity Step1
+entity Step2
+
+Caller -> Runner : run job by code 'AA1'
+Runner -> Repository : get job descriptor by code
+Repository --> Runner : job descriptor
+Runner -> Repository : get step descriptors
+Repository --> Runner : step descriptors
+Runner -> Job : create a job, set context, run
+Runner --> Caller : return JobInstance
+Job -> Job : get next step
+Job -> Step1 : create execution and run
+Job --> Runner : notify
+Step1 -> Job : notify result of execution
+Job --> Runner : notify
+Job -> Job : get next step
+Job -> Step2 : create execution and run
+Job --> Runner : notify
+Step2 -> Job : notify result of execution
+Job --> Runner : notify
+Runner -> Caller : notify
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+
+interface Runner {
+    void run(String jobCode)
+}
+interface Job {
+    void runAsync(JobContext context)
+}
+interface Step {
+    StepResult run(JobContext context)
+}
+interface Repository {
+    List<JobDescriptor> getJobDescriptors
+    List<StepDescriptor> getStepDescriptors
+    JobDescriptor findJobDescriptor
+}
+class StepDescriptor
+class JobDescriptor
+class JobContext
+class StepResult
+
+Runner <- Repository
+Job <- Runner
+Step <-Job
+StepDescriptor -|> Repository : "1..n"
+JobDescriptor -|> Repository : "1..n"
+JobContext -> Step
+JobContext -> Job
+
+@enduml
