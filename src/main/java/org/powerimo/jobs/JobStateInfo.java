@@ -18,4 +18,5 @@ public class JobStateInfo {
     private Status status;
     private transient Job job;
     private JobResult result;
+    private transient Throwable cause;
 }

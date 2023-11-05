@@ -5,7 +5,7 @@ import org.powerimo.jobs.Result;
 import org.powerimo.jobs.Step;
 import org.powerimo.jobs.StepResult;
 
-public class TestStep1 implements Step {
+public class Test1Step implements Step {
 
     @Override
     public StepResult run(JobContext jobContext) {

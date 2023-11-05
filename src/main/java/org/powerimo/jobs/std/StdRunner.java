@@ -11,6 +11,7 @@ import org.powerimo.jobs.generators.IdGenerator;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -47,7 +48,12 @@ public class StdRunner implements Runner {
         this.stateRepository = stateRepository1;
     }
 
-    public JobStateInfo run(@NonNull String jobCode) {
+    @Override
+    public JobStateInfo run(String jobCode) throws NoSuchMethodException {
+        return runArgs(jobCode);
+    }
+
+    public JobStateInfo runArgs(@NonNull String jobCode, Object... arguments) throws NoSuchMethodException {
         checkRepository();
 
         var jobDescriptor = repository.findJobDescriptor(jobCode).orElseThrow(() -> new RunnerException("Job descriptor is not found for the code: " + jobCode));
@@ -61,6 +67,7 @@ public class StdRunner implements Runner {
             params.add(this);
             params.add(jobDescriptor);
             params.add(jobInstance);
+            params.addAll(Arrays.asList(arguments));
 
             // get steps descriptors for the job
             var steps = repository.getStepDescriptors(jobCode);
@@ -74,6 +81,7 @@ public class StdRunner implements Runner {
                     .id(id)
                     .startedAt(Instant.now())
                     .status(Status.RUNNING)
+                    .job(jobInstance)
                     .build();
 
             if (stateRepository != null) {
@@ -82,13 +90,20 @@ public class StdRunner implements Runner {
 
             CompletableFuture.runAsync(() -> {
                 try {
+                    log.info("Job started: {}", jobCode);
                     jobInstance.run(context);
                 } catch (Exception e) {
-                    throw new RunnerException(e);
+                    JobResult result = new JobResult();
+                    result.setHasErrors(true);
+                    result.setResult(Result.ERROR);
+                    result.setMessage(e.getMessage());
+
+                    info.setStatus(Status.COMPLETED);
+                    info.setCause(e);
+                    info.setResult(result);
                 }
             });
 
-            log.info("Job started: {}", jobCode);
             return info;
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
             throw new RunnerException(e);

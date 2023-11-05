@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class JobResult {
     private Result result;
     private boolean hasErrors;
+    private String message;
 }

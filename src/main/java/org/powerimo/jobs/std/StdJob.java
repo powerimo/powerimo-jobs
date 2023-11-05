@@ -15,16 +15,24 @@ public class StdJob implements Job {
     @Override
     public void run(@NonNull JobContext context) throws Exception {
         this.context = context;
+        boolean hasErrors = false;
 
-        while (currentDescriptorIndex < context.getStepDescriptors().size()) {
+        for (; currentDescriptorIndex < context.getStepDescriptors().size(); currentDescriptorIndex++) {
             var descriptor = context.getStepDescriptors().get(currentDescriptorIndex);
-            executeStep(descriptor);
-            currentDescriptorIndex++;
+            var stepResult = executeStep(descriptor);
+
+            if (stepResult.getResult() == Result.ERROR) {
+                hasErrors = true;
+                if (!descriptor.isOnExceptionContinue()) {
+                    break;
+                }
+            }
         }
 
         final JobResult result = JobResult.builder()
-                .result(Result.SUCCESS)
-                .hasErrors(false)
+                .result(hasErrors ? Result.ERROR : Result.SUCCESS)
+                .message(hasErrors ? "Exception when execute step: " + context.getStepDescriptors().get(currentDescriptorIndex).getCode() : null)
+                .hasErrors(hasErrors)
                 .build();
 
         getContext().getRunner().onJobCompleted(this, result);
@@ -48,13 +56,9 @@ public class StdJob implements Job {
         try {
             result = step.run(context);
         } catch (Exception ex) {
-            if (descriptor.isOnExceptionContinue()) {
-                result = new StepResult();
-                result.setResult(Result.ERROR);
-                result.setCause(ex);
-            } else {
-                throw new JobException("Exception on executing Step", ex);
-            }
+            result = new StepResult();
+            result.setResult(Result.ERROR);
+            result.setCause(ex);
         }
 
         getContext().getRunner().onStepComplete(step, result);
