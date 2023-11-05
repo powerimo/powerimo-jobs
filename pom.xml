@@ -67,10 +67,11 @@
 
     <distributionManagement>
         <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/powerimo/powerimo-jobs</url>
+            <id>nexus-releases</id>
+            <name>NexusReleases</name>
+            <url>https://nexus3.andewil.com/repository/maven-releases</url>
         </repository>
     </distributionManagement>
+
 
 </project>
