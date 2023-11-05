@@ -26,20 +26,33 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Prepare snapshot') {
+            when {
+                expression { BRANCH_NAME == 'main' }
+            }
+            steps {
+                script {
+                    sh "mvn -B -DskipTests=true clean -f pom.xml"
+                }
+            }
+        }
+
+        stage('Prepare release') {
+            when {
+                expression { BRANCH_NAME ==~ /release\/[0-9]+\.[0-9]+/ }
+            }
             steps {
                 script {
                     def buildVersion = "${RELEASE_BRANCH}.${BUILD_NUMBER}"
                     echo "buildVersion=${buildVersion}"
                     sh "mvn -B -DskipTests=true clean versions:set -DnewVersion=${buildVersion} -f pom.xml"
-                    sh 'mvn package'
                 }
             }
         }
 
         stage("Deploy artifacts to Nexus") {
             steps {
-                sh 'mvn -DskipTests=true deploy'
+                sh 'mvn deploy'
             }
         }
 
