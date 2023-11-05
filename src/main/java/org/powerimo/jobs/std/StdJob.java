@@ -1,16 +1,16 @@
 package org.powerimo.jobs.std;
 
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.powerimo.jobs.*;
 import org.powerimo.jobs.exceptions.JobException;
 
-@Getter
+
 @Slf4j
-public class StdJob implements Job {
+public class StdJob implements Job, IdSupport {
     private JobContext context;
     private int currentDescriptorIndex = 0;
+    private String id;
 
     @Override
     public void run(@NonNull JobContext context) throws Exception {
@@ -66,4 +66,17 @@ public class StdJob implements Job {
         return result;
     }
 
+    protected JobContext getContext() {
+        return context;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
 }
