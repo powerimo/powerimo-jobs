@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.powerimo.jobs.*;
 import org.powerimo.jobs.exceptions.JobException;
 
+import java.lang.reflect.InvocationTargetException;
+
 
 @Slf4j
 public class StdJob implements Job, IdSupport {
@@ -46,7 +48,7 @@ public class StdJob implements Job, IdSupport {
 
         Step step;
         try {
-            step = cls.getDeclaredConstructor().newInstance();
+            step = createStep(descriptor);
             getContext().getRunner().onStepCreated(step);
         } catch (Exception ex) {
             throw new JobException("Exception on creating step instance", ex);
@@ -64,6 +66,10 @@ public class StdJob implements Job, IdSupport {
         getContext().getRunner().onStepComplete(step, result);
 
         return result;
+    }
+
+    protected Step createStep(StepDescriptor descriptor) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        return descriptor.getStepClass().getDeclaredConstructor().newInstance();
     }
 
     protected JobContext getContext() {
