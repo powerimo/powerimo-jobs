@@ -58,7 +58,7 @@ public class StdRunner implements Runner {
 
         var jobDescriptor = repository.findJobDescriptor(jobCode).orElseThrow(() -> new RunnerException("Job descriptor is not found for the code: " + jobCode));
         try {
-            var jobInstance = jobDescriptor.getJobClass().getDeclaredConstructor().newInstance();
+            var jobInstance = createJob(jobDescriptor);
 
             var id = updateJobId(jobInstance);
 
@@ -108,6 +108,10 @@ public class StdRunner implements Runner {
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
             throw new RunnerException(e);
         }
+    }
+
+    protected Job createJob(JobDescriptor descriptor) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        return descriptor.getJobClass().getDeclaredConstructor().newInstance();
     }
 
     @Override
