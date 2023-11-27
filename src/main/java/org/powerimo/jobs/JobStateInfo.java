@@ -11,12 +11,13 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JobStateInfo {
+public class JobStateInfo implements IdSupport {
     private String id;
     private Instant startedAt;
     private Instant completedAt;
     private Status status;
     private transient Job job;
+    private transient JobDescriptor jobDescriptor;
     private JobResult result;
     private transient Throwable cause;
 }

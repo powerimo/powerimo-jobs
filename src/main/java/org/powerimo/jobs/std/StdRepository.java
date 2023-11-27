@@ -42,7 +42,7 @@ public class StdRepository implements Repository {
     }
 
     public void addJob(String code, Class<? extends Job> jobClass) {
-        JobDescriptor descriptor = new JobDescriptor();
+        StdJobDescriptor descriptor = new StdJobDescriptor();
         descriptor.setCode(code);
         descriptor.setJobClass(jobClass);
         addJobDescriptor(descriptor);

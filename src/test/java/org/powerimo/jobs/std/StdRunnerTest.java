@@ -4,12 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.powerimo.jobs.Result;
 import org.powerimo.jobs.Status;
-import org.powerimo.jobs.StepDescriptor;
 import org.powerimo.jobs.exceptions.RunnerException;
+import org.powerimo.jobs.features.ExecutionFeature;
 import org.powerimo.jobs.generators.LocalLongIdGenerator;
-import org.powerimo.jobs.std.examples.JobArgs;
-import org.powerimo.jobs.std.examples.PrintArgsStep;
-import org.powerimo.jobs.std.examples.Test1Step;
+import org.powerimo.jobs.std.examples.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,13 +20,15 @@ class StdRunnerTest {
     public void init() {
         repository = new StdRepository();
         runner = new StdRunner(repository);
+        runner.enableFeature(ExecutionFeature.LOG_EXCEPTION_OUTPUT);
+        runner.disableFeature(ExecutionFeature.LOG_EXCEPTION);
 
         // add Job
         repository.addJob(JOB_A01, StdJob.class);
 
         // add step 1 for the job
-        repository.addStepDescriptor(StepDescriptor.of("STEP02", "Sample Step 2 (the same)", 2, Test1Step.class, JOB_A01));
-        repository.addStepDescriptor(StepDescriptor.builder()
+        repository.addStepDescriptor(StdStepDescriptor.of("STEP02", "Sample Step 2 (the same)", 2, Test1Step.class, JOB_A01));
+        repository.addStepDescriptor(StdStepDescriptor.builder()
                 .jobCode(JOB_A01)
                 .code("STEP01")
                 .name("Sample Step 1")
@@ -67,11 +67,12 @@ class StdRunnerTest {
         assertNotNull(info);
         assertNotNull(info.getStartedAt());
         assertNotNull(info.getStatus());
+        assertNotNull(info.getJobDescriptor());
     }
 
     @Test
     void runArgs_success() throws NoSuchMethodException {
-        repository.addStepDescriptor(StepDescriptor.of("PRINT_ARGS", "Print args", 10, PrintArgsStep.class, JOB_A01));
+        repository.addStepDescriptor(StdStepDescriptor.of("PRINT_ARGS", "Print args", 10, PrintArgsStep.class, JOB_A01));
 
         JobArgs args = new JobArgs();
         args.setParam1("aaa");
@@ -82,7 +83,7 @@ class StdRunnerTest {
 
     @Test
     void runArgs_exception() throws NoSuchMethodException, InterruptedException {
-        repository.addStepDescriptor(StepDescriptor.of("PRINT_ARGS", "Print args", 1, PrintArgsStep.class, JOB_A01));
+        repository.addStepDescriptor(StdStepDescriptor.of("PRINT_ARGS", "Print args", 1, PrintArgsStep.class, JOB_A01));
         runner.run(JOB_A01);
 
         Thread.sleep(300);
@@ -95,4 +96,45 @@ class StdRunnerTest {
         assertEquals(Result.ERROR, info.getResult().getResult());
     }
 
+    @Test
+    void featureSupport() {
+        assertFalse(runner.isFeatureEnabled(ExecutionFeature.LOG_EXCEPTION));
+        runner.enableFeature(ExecutionFeature.LOG_EXCEPTION);
+        assertTrue(runner.isFeatureEnabled(ExecutionFeature.LOG_EXCEPTION));
+        runner.disableFeature(ExecutionFeature.LOG_EXCEPTION);
+        assertFalse(runner.isFeatureEnabled(ExecutionFeature.LOG_EXCEPTION));
+    }
+
+    @Test
+    void stepWithException() throws NoSuchMethodException, InterruptedException {
+        StdStepDescriptor descriptor = StdStepDescriptor.of("STEP03", "STEP03", 40, ThrowExceptionStep.class, JOB_A01);
+        repository.addStepDescriptor(descriptor);
+
+        var info = runner.run(JOB_A01);
+        assertNotNull(info);
+        Thread.sleep(300);
+        assertTrue(info.getResult().isHasErrors());
+    }
+
+    @Test
+    void stepResultIsNull() throws NoSuchMethodException, InterruptedException {
+        StdStepDescriptor descriptor = StdStepDescriptor.of("STEP_NULL", "STEP_NULL", 10, NullResultStep.class, JOB_A01);
+        repository.addStepDescriptor(descriptor);
+
+        var info = runner.run(JOB_A01);
+        assertNotNull(info);
+        Thread.sleep(100);
+        assertTrue(info.getResult().isHasErrors());
+    }
+
+    @Test
+    void incorrectDescriptor() throws NoSuchMethodException, InterruptedException {
+        StdStepDescriptor descriptor = StdStepDescriptor.of("STEP_WITHOUT_CLASS", "STEP_WITHOUT_CLASS", 10, null, JOB_A01);
+        repository.addStepDescriptor(descriptor);
+
+        var info = runner.run(JOB_A01);
+        assertNotNull(info);
+        Thread.sleep(100);
+        assertTrue(info.getResult().isHasErrors());
+    }
 }

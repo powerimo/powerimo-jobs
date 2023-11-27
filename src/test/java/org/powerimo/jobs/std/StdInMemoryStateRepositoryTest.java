@@ -14,7 +14,7 @@ class StdInMemoryStateRepositoryTest {
         stateRepository = new StdInMemoryStateRepository();
 
         var job = new StdJob();
-        stateRepository.onJobStart(job);
+        stateRepository.onJobCreated(job);
 
         var step = new Test1Step();
         stateRepository.onStepCreated(step);

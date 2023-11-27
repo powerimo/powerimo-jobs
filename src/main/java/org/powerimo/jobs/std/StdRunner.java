@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.powerimo.jobs.*;
 import org.powerimo.jobs.exceptions.RunnerException;
+import org.powerimo.jobs.features.ExecutionFeature;
+import org.powerimo.jobs.features.ExecutionFeatureSupport;
 import org.powerimo.jobs.generators.IdGenerator;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
-public class StdRunner implements Runner {
+public class StdRunner implements Runner, ExecutionFeatureSupport {
     @Getter
     @Setter
     private Repository repository;
@@ -32,6 +34,9 @@ public class StdRunner implements Runner {
     @Getter
     @Setter
     private StateRepository stateRepository;
+
+    @Getter
+    private final List<ExecutionFeature> executionFeatures = new ArrayList<>();
 
     public StdRunner() {
         this.repository = new StdRepository();
@@ -73,7 +78,8 @@ public class StdRunner implements Runner {
             var steps = repository.getStepDescriptors(jobCode);
 
             // create context
-            final StdJobContext context = new StdJobContext(this, params, steps);
+            final StdJobContext context = new StdJobContext(this, params, steps, jobDescriptor);
+            context.getFeatures().addAll(this.executionFeatures);
 
             // run the job
             log.debug("Job is ready to execute: {}", jobInstance);
@@ -82,6 +88,7 @@ public class StdRunner implements Runner {
                     .startedAt(Instant.now())
                     .status(Status.RUNNING)
                     .job(jobInstance)
+                    .jobDescriptor(jobDescriptor)
                     .build();
 
             if (stateRepository != null) {
@@ -91,7 +98,7 @@ public class StdRunner implements Runner {
             CompletableFuture.runAsync(() -> {
                 try {
                     log.info("Job started: {}", jobCode);
-                    jobInstance.run(context);
+                    jobInstance.run(context, jobDescriptor);
                 } catch (Exception e) {
                     JobResult result = new JobResult();
                     result.setHasErrors(true);
@@ -125,7 +132,7 @@ public class StdRunner implements Runner {
     @Override
     public synchronized void onStepComplete(Step step, StepResult stepResult) {
         if (stateRepository != null) {
-            stateRepository.onStepComplete(step, stepResult);
+            stateRepository.onStepCompleted(step, stepResult);
             log.info("Step completed: {}. Result={}", step, stepResult);
         }
     }
@@ -143,7 +150,8 @@ public class StdRunner implements Runner {
 
     protected String updateJobId(Job job) {
         if (jobIdGenerator != null) {
-            if (job instanceof IdSupport idSupport) {
+            if (job instanceof IdSupport) {
+                IdSupport idSupport = (IdSupport) job;
                 var id = jobIdGenerator.getNextId();
                 idSupport.setId(id);
                 return id;
@@ -152,4 +160,20 @@ public class StdRunner implements Runner {
         return null;
     }
 
+
+    @Override
+    public boolean isFeatureEnabled(ExecutionFeature feature) {
+        return executionFeatures.contains(feature);
+    }
+
+    @Override
+    public void enableFeature(ExecutionFeature feature) {
+        if (!executionFeatures.contains(feature))
+            executionFeatures.add(feature);
+    }
+
+    @Override
+    public void disableFeature(ExecutionFeature feature) {
+        executionFeatures.remove(feature);
+    }
 }

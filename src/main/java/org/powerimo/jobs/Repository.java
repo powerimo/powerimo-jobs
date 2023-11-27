@@ -1,6 +1,7 @@
 package org.powerimo.jobs;
 
-import lombok.NonNull;
+import org.powerimo.jobs.std.StdJobDescriptor;
+import org.powerimo.jobs.std.StdStepDescriptor;
 
 import java.util.List;
 import java.util.Optional;

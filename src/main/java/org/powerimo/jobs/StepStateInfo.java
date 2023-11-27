@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.powerimo.jobs.std.StdStepDescriptor;
 
 import java.time.Instant;
 
@@ -11,8 +12,10 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StepStateInfo {
-    private Step step;
+public class StepStateInfo implements IdSupport {
+    private String id;
+    private transient Step step;
+    private transient StdStepDescriptor stepDescriptor;
     private Instant startedAt;
     private Instant completedAt;
     private Throwable cause;

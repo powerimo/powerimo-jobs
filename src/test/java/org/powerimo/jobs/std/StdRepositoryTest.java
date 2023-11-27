@@ -2,8 +2,6 @@ package org.powerimo.jobs.std;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powerimo.jobs.JobDescriptor;
-import org.powerimo.jobs.StepDescriptor;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,38 +12,38 @@ class StdRepositoryTest {
 
     @BeforeEach
     private void initRepo() {
-        repository.addJobDescriptor(JobDescriptor.builder()
+        repository.addJobDescriptor(StdJobDescriptor.builder()
                 .code(TEST_JOB_CODE)
                 .build());
-        repository.addJobDescriptor(JobDescriptor.builder()
+        repository.addJobDescriptor(StdJobDescriptor.builder()
                 .code(TEST_JOB_CODE_2)
                 .build());
-        repository.addStepDescriptor(StepDescriptor.builder()
+        repository.addStepDescriptor(StdStepDescriptor.builder()
                 .code("s10")
                 .order(10)
                 .jobCode(TEST_JOB_CODE)
                 .build());
-        repository.addStepDescriptor(StepDescriptor.builder()
+        repository.addStepDescriptor(StdStepDescriptor.builder()
                 .code("s5")
                 .order(5)
                 .jobCode(TEST_JOB_CODE)
                 .build());
-        repository.addStepDescriptor(StepDescriptor.builder()
+        repository.addStepDescriptor(StdStepDescriptor.builder()
                 .code("s30")
                 .order(30)
                 .jobCode(TEST_JOB_CODE)
                 .build());
-        repository.addStepDescriptor(StepDescriptor.builder()
+        repository.addStepDescriptor(StdStepDescriptor.builder()
                 .code("s25")
                 .order(25)
                 .jobCode(TEST_JOB_CODE)
                 .build());
-        repository.addStepDescriptor(StepDescriptor.builder()
+        repository.addStepDescriptor(StdStepDescriptor.builder()
                 .code("s25")
                 .order(10)
                 .jobCode(TEST_JOB_CODE_2)
                 .build());
-        repository.addStepDescriptor(StepDescriptor.builder()
+        repository.addStepDescriptor(StdStepDescriptor.builder()
                 .code("s100")
                 .order(100)
                 .jobCode(TEST_JOB_CODE_2)

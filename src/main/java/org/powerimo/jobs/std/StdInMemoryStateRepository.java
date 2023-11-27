@@ -53,7 +53,7 @@ public class StdInMemoryStateRepository implements StateRepository {
     }
 
     @Override
-    public synchronized void onJobStart(Job job) {
+    public synchronized void onJobCreated(Job job) {
         var opt = get(job);
         if (opt.isPresent()) {
             opt.get().setStatus(Status.RUNNING);
@@ -84,7 +84,7 @@ public class StdInMemoryStateRepository implements StateRepository {
     }
 
     @Override
-    public synchronized void onStepComplete(Step step, StepResult stepResult) {
+    public synchronized void onStepCompleted(Step step, StepResult stepResult) {
         var opt = getStep(step);
         if (opt.isPresent()) {
             opt.get().setCompletedAt(Instant.now());

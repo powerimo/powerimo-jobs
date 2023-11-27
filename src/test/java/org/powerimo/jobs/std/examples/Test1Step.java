@@ -1,14 +1,11 @@
 package org.powerimo.jobs.std.examples;
 
-import org.powerimo.jobs.JobContext;
-import org.powerimo.jobs.Result;
-import org.powerimo.jobs.Step;
-import org.powerimo.jobs.StepResult;
+import org.powerimo.jobs.*;
 
 public class Test1Step implements Step {
 
     @Override
-    public StepResult run(JobContext jobContext) {
+    public StepResult run(JobContext jobContext, StepDescriptor descriptor) {
         return new StepResult(Result.SUCCESS, "OK");
     }
 

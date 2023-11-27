@@ -11,8 +11,8 @@ public interface StateRepository {
     Optional<StepStateInfo> getStep(Step step);
     JobStateInfo add(JobStateInfo jobStateInfo);
     JobStateInfo add(Job job);
-    void onJobStart(Job job);
+    void onJobCreated(Job job);
     void onJobCompleted(Job job, JobResult result);
     void onStepCreated(Step step);
-    void onStepComplete(Step step, StepResult stepResult);
+    void onStepCompleted(Step step, StepResult stepResult);
 }
