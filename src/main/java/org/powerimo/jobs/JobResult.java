@@ -1,16 +1,10 @@
 package org.powerimo.jobs;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class JobResult {
-    private Result result;
-    private boolean hasErrors;
-    private String message;
+public interface JobResult {
+    Result getResult();
+    void setResult(Result value);
+    boolean getHasErrors();
+    void setHasErrors(boolean value);
+    String getMessage();
+    void setMessage(String value);
 }

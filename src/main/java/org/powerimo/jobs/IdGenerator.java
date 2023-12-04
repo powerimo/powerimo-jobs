@@ -1,4 +1,4 @@
-package org.powerimo.jobs.generators;
+package org.powerimo.jobs;
 
 public interface IdGenerator {
     String getNextId();

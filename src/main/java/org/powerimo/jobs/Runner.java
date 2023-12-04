@@ -1,11 +1,9 @@
 package org.powerimo.jobs;
 
+import org.powerimo.jobs.exceptions.RunnerException;
+
 public interface Runner {
-    JobStateInfo run(String jobCode) throws NoSuchMethodException;
-    JobStateInfo runArgs(String jobCode, Object... arguments) throws NoSuchMethodException;
-    void onJobCompleted(Job job, JobResult jobResult);
-    void onStepCreated(Step step);
-    void onStepComplete(Step step, StepResult stepResult);
-    StateRepository getStateRepository();
-    Repository getRepository();
+    JobState run(String jobCode) throws RunnerException;
+    JobState runArgs(String jobCode, Object... arguments) throws RunnerException;
+    RunnerConfiguration getConfiguration();
 }

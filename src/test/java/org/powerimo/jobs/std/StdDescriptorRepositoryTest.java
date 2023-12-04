@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StdRepositoryTest {
-    private final StdRepository repository = new StdRepository();
+class StdDescriptorRepositoryTest {
+    private final StdDescriptorRepository repository = new StdDescriptorRepository();
     private final String TEST_JOB_CODE = "A001";
     private final String TEST_JOB_CODE_2 = "A002";
 

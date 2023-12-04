@@ -4,7 +4,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.powerimo.jobs.Job;
 import org.powerimo.jobs.JobDescriptor;
-import org.powerimo.jobs.Repository;
+import org.powerimo.jobs.DescriptorRepository;
 import org.powerimo.jobs.StepDescriptor;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class StdRepository implements Repository {
+public class StdDescriptorRepository implements DescriptorRepository {
     private final ArrayList<JobDescriptor> jobDescriptors = new ArrayList<>();
     private final ArrayList<StepDescriptor> stepDescriptors = new ArrayList<>();
 
