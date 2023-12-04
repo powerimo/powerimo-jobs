@@ -6,18 +6,20 @@ import org.powerimo.jobs.std.examples.Test1Step;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class StdInMemoryStateRepositoryTest {
+class StdInMemoryStateDescriptorRepositoryTest {
     private StdInMemoryStateRepository stateRepository;
 
     @BeforeEach
     public void init() {
         stateRepository = new StdInMemoryStateRepository();
 
-        var job = new StdJob();
-        stateRepository.onJobCreated(job);
+        var jobState = StdJobState.builder()
+                        .build();
+        stateRepository.addJobState(jobState);
 
-        var step = new Test1Step();
-        stateRepository.onStepCreated(step);
+        var stepState = StdStepState.builder()
+                .build();
+        stateRepository.addStepState(stepState);
     }
 
     @Test

@@ -3,102 +3,80 @@ package org.powerimo.jobs.std;
 import lombok.extern.slf4j.Slf4j;
 import org.powerimo.jobs.*;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class StdInMemoryStateRepository implements StateRepository {
-    private final List<JobStateInfo> jobStateList = new ArrayList<>();
-    private final List<StepStateInfo> stepStateList = new ArrayList<>();
+    private final List<JobState> jobStateList = new ArrayList<>();
+    private final List<StepState> stepStateList = new ArrayList<>();
 
     @Override
-    public Optional<JobStateInfo> get(Job job) {
+    public Optional<JobState> getJobState(Job job) {
         return jobStateList.stream()
                 .filter(item -> Objects.equals(item.getJob(), job))
                 .findFirst();
     }
 
     @Override
-    public Optional<JobStateInfo> get(String id) {
+    public Optional<JobState> getJobState(String id) {
         return jobStateList.stream()
                 .filter(item -> Objects.equals(item.getId(), id))
                 .findFirst();
     }
 
     @Override
-    public Optional<StepStateInfo> getStep(Step step) {
+    public Optional<StepState> getStepState(Step step) {
         return stepStateList.stream()
                 .filter(item -> Objects.equals(item.getStep(), step))
                 .findFirst();
     }
 
     @Override
-    public JobStateInfo add(JobStateInfo jobStateInfo) {
-        jobStateList.add(jobStateInfo);
-        return jobStateInfo;
+    public void addJobState(JobState jobState) {
+        jobStateList.add(jobState);
     }
 
     @Override
-    public JobStateInfo add(Job job) {
-        JobStateInfo info = JobStateInfo.builder()
-                .startedAt(Instant.now())
-                .status(Status.RUNNING)
-                .job(job)
-                .build();
-        jobStateList.add(info);
-        return info;
-    }
-
-    @Override
-    public synchronized void onJobCreated(Job job) {
-        var opt = get(job);
-        if (opt.isPresent()) {
-            opt.get().setStatus(Status.RUNNING);
-            opt.get().setStartedAt(Instant.now());
-        } else {
-            add(job);
-        }
-    }
-
-    @Override
-    public synchronized void onJobCompleted(Job job, JobResult result) {
-        var opt = get(job);
-        if (opt.isPresent()) {
-            opt.get().setStatus(Status.COMPLETED);
-            opt.get().setCompletedAt(Instant.now());
-            opt.get().setResult(result);
-        }
-    }
-
-    @Override
-    public synchronized void onStepCreated(Step step) {
-        final StepStateInfo stepStateInfo = StepStateInfo.builder()
-                .step(step)
-                .startedAt(Instant.now())
-                .status(Status.RUNNING)
-                .build();
-        stepStateList.add(stepStateInfo);
-    }
-
-    @Override
-    public synchronized void onStepCompleted(Step step, StepResult stepResult) {
-        var opt = getStep(step);
-        if (opt.isPresent()) {
-            opt.get().setCompletedAt(Instant.now());
-            opt.get().setStatus(Status.COMPLETED);
-        }
-    }
-
-    @Override
-    public List<JobStateInfo> getJobStateList() {
+    public List<JobState> getJobStateList() {
         return jobStateList;
     }
 
     @Override
-    public List<StepStateInfo> getStepStateList() {
+    public List<StepState> getStepStateList() {
         return stepStateList;
     }
+
+    @Override
+    public Optional<StepState> getStepState(String id) {
+        return stepStateList.stream()
+                .filter(item -> Objects.equals(item.getId(), id))
+                .findFirst();
+    }
+
+    @Override
+    public List<StepState> getJobStepsStateList(String jobId) {
+        return stepStateList.stream()
+                .filter(item -> Objects.equals(item.getJobId(), jobId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateJobState(JobState jobState) {
+        if (!jobStateList.contains(jobState))
+            addJobState(jobState);
+    }
+
+    @Override
+    public void addStepState(StepState stepState) {
+        if (!stepStateList.contains(stepState))
+            stepStateList.add(stepState);
+    }
+
+    @Override
+    public void updateStepState(StepState stepState) {
+        if (!stepStateList.contains(stepState))
+            addStepState(stepState);
+    }
+
 }

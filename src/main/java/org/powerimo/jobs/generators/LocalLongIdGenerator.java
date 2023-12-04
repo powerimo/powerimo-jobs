@@ -1,5 +1,7 @@
 package org.powerimo.jobs.generators;
 
+import org.powerimo.jobs.IdGenerator;
+
 public class LocalLongIdGenerator implements IdGenerator {
     private long current = 0L;
 

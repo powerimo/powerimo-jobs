@@ -1,179 +1,186 @@
 package org.powerimo.jobs.std;
 
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.powerimo.jobs.*;
-import org.powerimo.jobs.exceptions.RunnerException;
+import org.powerimo.jobs.base.AbstractRunner;
 import org.powerimo.jobs.features.ExecutionFeature;
-import org.powerimo.jobs.features.ExecutionFeatureSupport;
-import org.powerimo.jobs.generators.IdGenerator;
+import org.powerimo.jobs.generators.UuidGenerator;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
-public class StdRunner implements Runner, ExecutionFeatureSupport {
-    @Getter
-    @Setter
-    private Repository repository;
-
-    @Getter
-    @Setter
-    private IdGenerator jobIdGenerator;
-
-    @Getter
-    @Setter
-    private IdGenerator stepIdGenerator;
-
-    @Getter
-    @Setter
-    private StateRepository stateRepository;
-
-    @Getter
-    private final List<ExecutionFeature> executionFeatures = new ArrayList<>();
+public class StdRunner extends AbstractRunner {
 
     public StdRunner() {
-        this.repository = new StdRepository();
-        this.stateRepository = new StdInMemoryStateRepository();
+        initDefaults();
     }
 
-    public StdRunner(Repository repository1) {
-        repository = repository1;
-        stateRepository = new StdInMemoryStateRepository();
-    }
-
-    public StdRunner(Repository repository1, StateRepository stateRepository1) {
-        this.repository = repository1;
-        this.stateRepository = stateRepository1;
+    public StdRunner(RunnerConfiguration runnerConfiguration) {
+        setConfiguration(runnerConfiguration);
+        initDefaults();
     }
 
     @Override
-    public JobStateInfo run(String jobCode) throws NoSuchMethodException {
-        return runArgs(jobCode);
-    }
-
-    public JobStateInfo runArgs(@NonNull String jobCode, Object... arguments) throws NoSuchMethodException {
-        checkRepository();
-
-        var jobDescriptor = repository.findJobDescriptor(jobCode).orElseThrow(() -> new RunnerException("Job descriptor is not found for the code: " + jobCode));
-        try {
-            var jobInstance = createJob(jobDescriptor);
-
-            var id = updateJobId(jobInstance);
-
-            // prepare parameters
-            List<Object> params = new ArrayList<>();
-            params.add(this);
-            params.add(jobDescriptor);
-            params.add(jobInstance);
-            params.addAll(Arrays.asList(arguments));
-
-            // get steps descriptors for the job
-            var steps = repository.getStepDescriptors(jobCode);
-
-            // create context
-            final StdJobContext context = new StdJobContext(this, params, steps, jobDescriptor);
-            context.getFeatures().addAll(this.executionFeatures);
-
-            // run the job
-            log.debug("Job is ready to execute: {}", jobInstance);
-            JobStateInfo info = JobStateInfo.builder()
-                    .id(id)
-                    .startedAt(Instant.now())
-                    .status(Status.RUNNING)
-                    .job(jobInstance)
-                    .jobDescriptor(jobDescriptor)
+    protected void initDefaults() {
+        if (getConfiguration() == null) {
+            final StdRunnerConfiguration stdRunnerConfiguration = StdRunnerConfiguration.builder()
+                    .descriptorRepository(new StdDescriptorRepository())
+                    .jobIdGenerator(new UuidGenerator())
+                    .stepIdGenerator(new UuidGenerator())
+                    .stateRepository(new StdInMemoryStateRepository())
                     .build();
-
-            if (stateRepository != null) {
-                stateRepository.add(info);
-            }
-
-            CompletableFuture.runAsync(() -> {
-                try {
-                    log.info("Job started: {}", jobCode);
-                    jobInstance.run(context, jobDescriptor);
-                } catch (Exception e) {
-                    JobResult result = new JobResult();
-                    result.setHasErrors(true);
-                    result.setResult(Result.ERROR);
-                    result.setMessage(e.getMessage());
-
-                    info.setStatus(Status.COMPLETED);
-                    info.setCause(e);
-                    info.setResult(result);
-                }
-            });
-
-            return info;
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException | InstantiationException e) {
-            throw new RunnerException(e);
+            setConfiguration(stdRunnerConfiguration);
         }
+
+        checkDescriptorRepository();
     }
 
-    protected Job createJob(JobDescriptor descriptor) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        return descriptor.getJobClass().getDeclaredConstructor().newInstance();
-    }
 
-    @Override
+
+/*    @Override
     public synchronized void onJobCompleted(Job job, JobResult jobResult) {
-        if (stateRepository != null) {
-            stateRepository.onJobCompleted(job, jobResult);
-            log.info("Job completed: {}. Result={}", job, jobResult);
+        if (getStateRepository() == null) {
+            log.debug("state repository is not specified. Break onJobCompleted execution");
+            return;
         }
-    }
 
-    @Override
+        var stateOpt = getStateRepository().getJobState(job);
+        if (stateOpt.isEmpty()) {
+            log.debug("job tate is not found. Break onJobCompleted execution");
+            return;
+        }
+        var state = stateOpt.get();
+
+        if (!(state instanceof StdJobState)) {
+            log.warn("Unsupported JobState: {}", state.getClass().getCanonicalName());
+            return;
+        }
+
+        StdJobState stdState = (StdJobState) state;
+        stdState.setJobResult(jobResult);
+        stdState.setStatus(Status.COMPLETED);
+        stdState.setCompletedAt(Instant.now());
+
+        getStateRepository().updateJobState(stdState);
+
+        if (isFeatureEnabled(ExecutionFeature.LOG_JOB_COMPLETED)) {
+            log.info("Job completed: {}. Result={}", stdState, jobResult);
+        }
+    }*/
+
+/*    @Override
     public synchronized void onStepComplete(Step step, StepResult stepResult) {
-        if (stateRepository != null) {
-            stateRepository.onStepCompleted(step, stepResult);
+        if (getStateRepository() == null) {
+            log.debug("state repository is not specified. Break onJobCompleted execution");
+            return;
+        }
+
+        var stateOpt = getStateRepository().getStepState(step);
+        if (stateOpt.isEmpty()) {
+            log.debug("step state is not found. Break onJobCompleted execution");
+            return;
+        }
+        var state = stateOpt.get();
+
+        if (!(state instanceof StdStepState)) {
+            log.warn("Unsupported StepState: {}", state.getClass().getCanonicalName());
+            return;
+        }
+
+        final StdStepState stdState = (StdStepState) state;
+        stdState.setStepResult(stepResult);
+        stdState.setStatus(Status.COMPLETED);
+        stdState.setCompletedAt(Instant.now());
+
+        getStateRepository().updateStepState(stdState);
+
+        if (isFeatureEnabled(ExecutionFeature.LOG_STEP_COMPLETED)) {
             log.info("Step completed: {}. Result={}", step, stepResult);
         }
-    }
+    }*/
 
     @Override
-    public synchronized void onStepCreated(Step step) {
-        if (stateRepository != null)
-            stateRepository.onStepCreated(step);
-    }
+    protected JobState createJobState(Job job, JobDescriptor descriptor) {
+        var jobResult = StdJobResult.builder()
+                .result(Result.UNKNOWN)
+                .hasErrors(false)
+                .build();
 
-    protected void checkRepository() {
-        if (repository == null)
-            throw new RunnerException("Repository is not specified");
-    }
+        var state = StdJobState.builder()
+                .job(job)
+                .jobDescriptor(descriptor)
+                .status(Status.RUNNING)
+                .startedAt(Instant.now())
+                .jobResult(jobResult)
+                .build();
 
-    protected String updateJobId(Job job) {
-        if (jobIdGenerator != null) {
+        if (getJobIdGenerator() != null) {
+            state.setId(getJobIdGenerator().getNextId());
             if (job instanceof IdSupport) {
                 IdSupport idSupport = (IdSupport) job;
-                var id = jobIdGenerator.getNextId();
-                idSupport.setId(id);
-                return id;
+                idSupport.setId(state.getId());
             }
         }
-        return null;
-    }
 
-
-    @Override
-    public boolean isFeatureEnabled(ExecutionFeature feature) {
-        return executionFeatures.contains(feature);
+        return state;
     }
 
     @Override
-    public void enableFeature(ExecutionFeature feature) {
-        if (!executionFeatures.contains(feature))
-            executionFeatures.add(feature);
+    protected JobContext createJobContext(@NonNull JobState state, Object... args) {
+        var jobDescriptor = state.getJobDescriptor();
+
+        // prepare parameters
+        final List<Object> params = new ArrayList<>();
+        params.add(this);
+        params.add(jobDescriptor);
+        params.add(state.getJob());
+        params.addAll(Arrays.asList(args));
+
+        // get steps descriptors for the job
+        var stepDescriptorList = getDescriptorRepository().getStepDescriptors(jobDescriptor.getCode());
+
+        // create context
+        var context = StdJobContext.builder()
+                .runner(this)
+                .executionFeatures(getExecutionFeatures())
+                .parameters(params)
+                .jobState(state)
+                .stateChangeReceiver(this)
+                .stepDescriptors(stepDescriptorList)
+                .build();
+
+        log.debug("context created: {}", context);
+
+        return context;
     }
 
     @Override
-    public void disableFeature(ExecutionFeature feature) {
-        executionFeatures.remove(feature);
+    protected void handleJobException(Job job, JobState jobState, Exception exception) {
+        if (isFeatureEnabled(ExecutionFeature.LOG_EXCEPTION)) {
+            log.error("Exception on Job execution. JobState: {}", jobState, exception);
+        }
+
+        if (!(jobState instanceof StdJobState)) {
+            log.error("JobState is not compatible with StdJobState");
+            return;
+        }
+        final StdJobState stdJobState = (StdJobState) jobState;
+
+        final JobResult result = StdJobResult.builder()
+                .hasErrors(true)
+                .result(Result.ERROR)
+                .message(exception.getMessage())
+                .build();
+
+        stdJobState.setStatus(Status.COMPLETED);
+        stdJobState.setCause(exception);
+        stdJobState.setCompletedAt(Instant.now());
+        stdJobState.setJobResult(result);
+
+        getStateRepository().updateJobState(jobState);
     }
 }
