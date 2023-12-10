@@ -6,8 +6,28 @@
 
     <groupId>org.powerimo</groupId>
     <artifactId>powerimo-jobs</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>powerimo-jobs-bom</module>
+        <module>powerimo-jobs-core</module>
+        <module>powerimo-jobs-boot2</module>
+        <module>powerimo-jobs-starter-boot2</module>
+        <module>powerimo-jobs-starter-boot3</module>
+    </modules>
+
     <properties>
+        <revision>0.3-SNAPSHOT</revision>
+
+        <!-- Spring Boot 2 -->
+        <spring.boot2.version>2.7.17</spring.boot2.version>
+        <slf4j.boot2.version>1.7.36</slf4j.boot2.version>
+
+        <!-- Spring Boot 3 -->
+        <spring.boot3.version>3.2.0</spring.boot3.version>
+        <slf4j.boot3.version>2.0.7</slf4j.boot3.version>
+
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -16,36 +36,7 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.powerimo</groupId>
-            <artifactId>powerimo-common</artifactId>
-            <version>0.1.8</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.9.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.7</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.4.11</version>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 
     <build>
@@ -53,7 +44,47 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.1.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

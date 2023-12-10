@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.powerimo.jobs.boot2.PowerimoJobsBoot2AutoConfiguration

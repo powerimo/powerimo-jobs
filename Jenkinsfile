@@ -3,7 +3,7 @@ pipeline {
     environment {
         FULL_PATH_BRANCH = "${env.BRANCH_NAME}"
         RELEASE_BRANCH = FULL_PATH_BRANCH.substring(FULL_PATH_BRANCH.lastIndexOf('/') + 1, FULL_PATH_BRANCH.length()).trim()
-        NSS_API_KEY = credentials('tocl-nss-api-key')
+        NSS_API_KEY = credentials('powerimo-nss-api-key')
     }
 
     tools{
@@ -46,13 +46,17 @@ pipeline {
                     def buildVersion = "${RELEASE_BRANCH}.${BUILD_NUMBER}"
                     echo "buildVersion=${buildVersion}"
                     sh "mvn -B -DskipTests=true clean versions:set -DnewVersion=${buildVersion} -f pom.xml"
+                    sh "mvn -B versions:commit"
                 }
             }
         }
 
         stage("Deploy artifacts to Nexus") {
             steps {
-                sh 'mvn deploy'
+                script {
+                    def buildVersion = "${RELEASE_BRANCH}.${BUILD_NUMBER}"
+                    sh "mvn deploy -Drevision=${buildVersion}"
+                }
             }
         }
 
