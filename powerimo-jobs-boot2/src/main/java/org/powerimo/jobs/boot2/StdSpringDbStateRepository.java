@@ -2,14 +2,14 @@ package org.powerimo.jobs.boot2;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.powerimo.jobs.JobState;
 import org.powerimo.jobs.Status;
+import org.powerimo.jobs.StepState;
+import org.powerimo.jobs.base.AbstractPersistentStateRepository;
 import org.powerimo.jobs.boot2.entities.JobEntity;
 import org.powerimo.jobs.boot2.entities.StepEntity;
 import org.powerimo.jobs.boot2.repositories.JobRepository;
 import org.powerimo.jobs.boot2.repositories.StepRepository;
-import org.powerimo.jobs.JobState;
-import org.powerimo.jobs.StepState;
-import org.powerimo.jobs.base.AbstractPersistentStateRepository;
 import org.powerimo.jobs.exceptions.StateRepositoryException;
 import org.springframework.core.convert.converter.Converter;
 

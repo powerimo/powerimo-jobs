@@ -3,8 +3,6 @@ package org.powerimo.jobs.std;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.powerimo.jobs.Result;
-import org.powerimo.jobs.Step;
-import org.powerimo.jobs.StepDescriptor;
 import org.powerimo.jobs.StepResult;
 
 import java.util.concurrent.atomic.AtomicLong;
