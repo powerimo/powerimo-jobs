@@ -3,8 +3,6 @@ package org.powerimo.jobs.std;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.powerimo.jobs.Result;
-import org.powerimo.jobs.Step;
-import org.powerimo.jobs.StepDescriptor;
 import org.powerimo.jobs.StepResult;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -12,13 +10,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @NoArgsConstructor
 @Data
 public class StdStepResult implements StepResult {
-    private transient Step step;
-    private transient StepDescriptor stepDescriptor;
-    private String stepId;
-    private String jobId;
     private Result result;
     private String message;
-    private Throwable cause;
+    private transient Throwable cause;
     private final AtomicLong counterTotal = new AtomicLong();
     private final AtomicLong counterErrors = new AtomicLong();
 
@@ -34,6 +28,7 @@ public class StdStepResult implements StepResult {
     public static StdStepResult success(Long total, Long errors) {
         final StdStepResult stepResult = new StdStepResult();
 
+        stepResult.setResult(Result.SUCCESS);
         if (total != null)
             stepResult.counterTotal.set(total);
         if (errors != null)

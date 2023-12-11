@@ -17,6 +17,8 @@ import org.powerimo.jobs.std.StdStepState;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,7 +81,7 @@ class StdSpringDbStateRepositoryTest {
         JobEntity entity = JobEntity.builder().build();
         JobState jobState = new StdJobState();
 
-        when(jobStateConverter.convert(jobState)).thenReturn(entity);
+        when(jobRepository.findById(jobState.getId())).thenReturn(Optional.of(entity));
         stateRepository.updateJobState(jobState);
         verify(jobRepository).save(entity);
     }

@@ -1,5 +1,6 @@
 package org.powerimo.jobs.boot2;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.powerimo.jobs.DescriptorRepository;
 import org.powerimo.jobs.Runner;
 import org.powerimo.jobs.RunnerConfiguration;
@@ -18,8 +19,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.Repository;
 
@@ -29,6 +30,7 @@ import javax.persistence.EntityManager;
 @ConditionalOnClass({EntityManager.class, Repository.class})
 @EnableJpaRepositories(basePackages = {"org.powerimo.jobs.boot2.repositories"})
 @EntityScan(basePackages = {"org.powerimo.jobs.boot2.entities"})
+@ComponentScan(basePackages = {"org.powerimo.jobs.boot2"})
 public class PowerimoJobsBoot2AutoConfiguration {
     private JobRepository jpaJobRepository;
     private StepRepository jpaStepRepository;
@@ -45,8 +47,16 @@ public class PowerimoJobsBoot2AutoConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    public StateRepository stateRepository() {
-        var jonEntityConverter = new JobEntityConverter();
+    public ObjectMapper objectMapper() {
+        var mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+        return mapper;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public StateRepository stateRepository(ObjectMapper objectMapper) {
+        var jonEntityConverter = new JobEntityConverter(objectMapper);
         var jobStateConverter = new JobStateConverter();
         var stepEntityConverter = new StepEntityConverter();
         var stepStateConverter = new StepStateConverter();

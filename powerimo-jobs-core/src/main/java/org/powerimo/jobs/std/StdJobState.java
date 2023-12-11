@@ -22,7 +22,7 @@ public class StdJobState implements IdSupport, JobState {
     private String title;
     private transient Job job;
     private transient JobDescriptor jobDescriptor;
-    private JobResult jobResult;
+    private JobResult jobResult = new StdJobResult(Result.UNKNOWN, false, null);
     private transient Throwable cause;
     private transient StepState currentStep;
     private List<Object> arguments = new ArrayList<>();
