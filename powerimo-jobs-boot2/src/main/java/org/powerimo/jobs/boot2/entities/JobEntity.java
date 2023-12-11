@@ -28,7 +28,7 @@ public class JobEntity {
     private String code;
     private String title;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private Result result;
     private String resultMessage;
 

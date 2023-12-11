@@ -73,3 +73,35 @@ databaseChangeLog:
               - column:
                   name: count_error
                   type: int
+  - changeSet:
+      author: powerimo
+      comment: Primary keys and indexes
+      id: PowerimoJob.v.0.3.002
+      changes:
+        - addPrimaryKey:
+            tableName: powerimo_job
+            columnNames: id
+            constraintName: powerimo_job_pk
+        - addPrimaryKey:
+            tableName: powerimo_job_step
+            columnNames: id
+            constraintName: powerimo_job_step_pk
+        - createIndex:
+            tableName: powerimo_job
+            columns:
+              - column:
+                  name: started_at
+            indexName: powerimo_job_idx01
+        - createIndex:
+            tableName: powerimo_job
+            columns:
+              - column:
+                  name: completed_at
+            indexName: powerimo_job_idx02
+        - createIndex:
+            tableName: powerimo_job_step
+            columns:
+              - column:
+                  name: job_id
+            indexName: powerimo_job_step_idx01
+

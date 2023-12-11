@@ -61,10 +61,15 @@ public class StdSpringDbStateRepository extends AbstractPersistentStateRepositor
 
     @Override
     public void updatePersistentJobState(JobState jobState) {
-        var entity = jobStateConverter.convert(jobState);
-        if (entity == null) {
+        var entityOpt = jobRepository.findById(jobState.getId());
+        if (entityOpt.isEmpty()) {
             throw new StateRepositoryException("Converter returns empty entity");
         }
+        var entity = entityOpt.get();
+        entity.setResult(jobState.getJobResult().getResult());
+        entity.setResultMessage(jobState.getJobResult().getMessage());
+        entity.setCompletedAt(jobState.getCompletedAt());
+        entity.setStatus(jobState.getStatus());
         jobRepository.save(entity);
     }
 

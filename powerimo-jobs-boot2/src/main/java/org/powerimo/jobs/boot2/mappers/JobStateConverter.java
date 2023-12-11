@@ -19,6 +19,7 @@ public class JobStateConverter implements Converter<JobState, JobEntity> {
 
     public JobStateConverter() {
         this.objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
     }
 
     @SneakyThrows

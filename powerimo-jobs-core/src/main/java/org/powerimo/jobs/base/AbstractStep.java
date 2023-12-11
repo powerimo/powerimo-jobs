@@ -17,8 +17,11 @@ public abstract class AbstractStep implements Step, IdSupport {
         this.context = jobContext;
         this.stepDescriptor = descriptor;
 
+        doBeforeRun();
         return doRun();
     }
+
+    protected void doBeforeRun() {}
 
     protected abstract StepResult doRun() throws Exception;
 

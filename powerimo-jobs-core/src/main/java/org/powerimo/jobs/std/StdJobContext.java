@@ -16,7 +16,6 @@ import java.util.List;
 @Setter
 public class StdJobContext implements JobContext {
     private Runner runner;
-    private List<Object> parameters;
     private List<StepDescriptor> stepDescriptors;
     private List<ExecutionFeature> executionFeatures;
     private JobState jobState;
@@ -29,11 +28,15 @@ public class StdJobContext implements JobContext {
 
     @Override
     public <T> T get(Class<T> parameterClass) {
-        var obj = parameters.stream()
+        var obj = getJobState().getArguments().stream()
                 .filter(item -> item.getClass().isAssignableFrom(parameterClass))
                 .findFirst()
                 .orElse(null);
         return (T) obj;
+    }
+
+    public List<Object> getParameters() {
+        return getJobState().getArguments();
     }
 
     @Override

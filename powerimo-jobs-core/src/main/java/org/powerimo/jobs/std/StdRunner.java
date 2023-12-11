@@ -37,6 +37,10 @@ public class StdRunner extends AbstractRunner {
             setConfiguration(stdRunnerConfiguration);
         }
 
+        enableFeature(ExecutionFeature.LOG_STEP_COMPLETED);
+        enableFeature(ExecutionFeature.LOG_JOB_COMPLETED);
+        enableFeature(ExecutionFeature.LOG_EXCEPTION);
+
         checkDescriptorRepository();
     }
 
@@ -121,7 +125,6 @@ public class StdRunner extends AbstractRunner {
         var context = StdJobContext.builder()
                 .runner(this)
                 .executionFeatures(getExecutionFeatures())
-                .parameters(params)
                 .jobState(state)
                 .stateChangeReceiver(this)
                 .stepDescriptors(stepDescriptorList)
