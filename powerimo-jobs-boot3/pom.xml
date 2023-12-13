@@ -3,15 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.powerimo</groupId>
+        <artifactId>powerimo-jobs</artifactId>
+        <version>0.3-SNAPSHOT</version>
+    </parent>
 
     <groupId>org.powerimo</groupId>
-    <artifactId>powerimo-jobs-starter-boot3</artifactId>
-    <version>${revision}</version>
-    <packaging>jar</packaging>
+    <artifactId>powerimo-jobs-boot3</artifactId>
 
     <properties>
         <revision>0.3-SNAPSHOT</revision>
-        <springboot3.version>3.2.0</springboot3.version>
+
+        <liquidbase.version>4.23.0</liquidbase.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -33,23 +37,42 @@
     <dependencies>
         <dependency>
             <groupId>org.powerimo</groupId>
-            <artifactId>powerimo-jobs-boot3</artifactId>
+            <artifactId>powerimo-jobs-core</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.powerimo</groupId>
-            <artifactId>powerimo-common</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.boot3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <version>${springboot3.version}</version>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.boot3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.boot3.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquidbase.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
