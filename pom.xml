@@ -26,7 +26,7 @@
         <slf4j.boot2.version>1.7.36</slf4j.boot2.version>
 
         <!-- Spring Boot 3 -->
-        <spring.boot3.version>3.1.2</spring.boot3.version>
+        <spring.boot3.version>3.2.0</spring.boot3.version>
         <slf4j.boot3.version>2.0.7</slf4j.boot3.version>
 
         <java.version>11</java.version>
