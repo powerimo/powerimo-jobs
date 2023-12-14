@@ -59,4 +59,24 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>maven-group</id>
+            <url>https://nexus3.andewil.com/repository/maven-releases/</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name>NexusReleases</name>
+            <url>https://nexus3.andewil.com/repository/maven-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <name>NexusSnapshots</name>
+            <url>https://nexus3.andewil.com/repository/maven-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
